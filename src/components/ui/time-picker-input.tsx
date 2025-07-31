@@ -4,7 +4,7 @@ import { formatTime, getTimeParts, isValidTime, timeToMinutes } from "./time-pic
 
 export type TimeValue = number | null
 
-interface TimePickerInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface TimePickerInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> {
   value: TimeValue
   onChange: (value: TimeValue) => void
 }
