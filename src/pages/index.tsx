@@ -470,7 +470,7 @@ const AnalyticsModal = ({ isOpen, onClose, profile }: { isOpen: boolean; onClose
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[95vw] w-full h-[90vh] p-0 overflow-hidden">
+      <DialogContent className="max-w-[95vw] w-full h-[90vh] p-0 overflow-y-auto">
         <DashboardLayout profile={profile} onClose={onClose} />
       </DialogContent>
     </Dialog>
@@ -1200,7 +1200,7 @@ export default function FocusFlow() {
           </>
         ) : (
           // --- Main Dashboard ---
-          <main className="w-full max-w-xl mx-auto flex-1 flex flex-col items-center px-2 pb-2">
+          <main className="w-full max-w-xl mx-auto flex-1 flex flex-col items-center px-2 pb-24">
             {/* Top Bar */}
             <div className="w-full flex flex-row items-center justify-between mt-4 mb-2">
               <div className="flex flex-row items-center">
@@ -1483,7 +1483,7 @@ export default function FocusFlow() {
         <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
           <DialogContent
             ref={modalRef}
-            className="max-w-lg w-full rounded-2xl p-0 overflow-hidden"
+            className="max-w-lg w-full rounded-2xl p-0 overflow-y-auto"
             aria-modal="true"
             aria-labelledby="create-profile-title"
             aria-describedby="create-profile-desc"
@@ -1622,7 +1622,7 @@ export default function FocusFlow() {
 
         {/* Add/Edit Activity Modal */}
         <Dialog open={showActivityModal} onOpenChange={setShowActivityModal}>
-          <DialogContent className="max-w-lg w-full rounded-2xl p-0 overflow-hidden">
+          <DialogContent className="max-w-lg w-full rounded-2xl p-0 overflow-y-auto">
             <DialogHeader className="bg-primary/10 px-6 py-4">
               <DialogTitle className="text-xl font-bold text-primary">
                 {activityEditId ? "Edit Activity" : "Add Activity"}
