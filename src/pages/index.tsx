@@ -477,6 +477,132 @@ const AnalyticsModal = ({ isOpen, onClose, profile }: { isOpen: boolean; onClose
   );
 };
 
+// --- Settings Modal Component ---
+const SettingsModal = ({
+  isOpen,
+  onClose,
+  profile,
+  onUpdateProfile
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  profile: Profile | null;
+  onUpdateProfile: (updates: Partial<Profile>) => void;
+}) => {
+  if (!profile) return null;
+
+  const [completionGoal, setCompletionGoal] = React.useState(profile.preferences.completionGoal);
+
+  const handleSave = () => {
+    onUpdateProfile({
+      preferences: {
+        ...profile.preferences,
+        completionGoal: completionGoal,
+      },
+    });
+    toast({
+      title: "Settings Saved!",
+      description: `Completion goal set to ${completionGoal}%`
+    });
+    onClose();
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[500px]">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <span className="text-2xl">⚙️</span>
+            Settings
+          </DialogTitle>
+          <DialogDescription>
+            Customize your FocusFlow experience
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-6 py-4">
+          {/* Profile Info */}
+          <div className="flex items-center gap-3 p-3 rounded-lg bg-muted">
+            <span className="text-3xl">{profile.avatar}</span>
+            <div>
+              <div className="font-semibold">{profile.name}</div>
+              <div className="text-sm text-muted-foreground capitalize">{profile.type} Profile</div>
+            </div>
+          </div>
+
+          {/* Completion Goal Slider */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="completion-goal" className="text-sm font-medium">
+                Daily Completion Goal
+              </Label>
+              <span className="text-2xl font-bold text-primary">{completionGoal}%</span>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Complete at least this percentage of activities to maintain your streak
+            </p>
+            <input
+              id="completion-goal"
+              type="range"
+              min="50"
+              max="100"
+              step="5"
+              value={completionGoal}
+              onChange={(e) => setCompletionGoal(parseInt(e.target.value))}
+              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary"
+            />
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>50%</span>
+              <span>75%</span>
+              <span>100%</span>
+            </div>
+          </div>
+
+          {/* Theme Section (Placeholder for future) */}
+          <div className="space-y-2 opacity-50">
+            <Label className="text-sm font-medium">Theme</Label>
+            <p className="text-xs text-muted-foreground">
+              🌙 Dark mode coming soon!
+            </p>
+          </div>
+
+          {/* Profile Stats */}
+          <div className="pt-4 border-t space-y-2">
+            <div className="text-sm font-medium mb-2">Profile Statistics</div>
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div className="p-2 rounded-lg bg-muted">
+                <div className="text-muted-foreground text-xs">Current Streak</div>
+                <div className="font-semibold">{profile.streaks.current} days</div>
+              </div>
+              <div className="p-2 rounded-lg bg-muted">
+                <div className="text-muted-foreground text-xs">Best Streak</div>
+                <div className="font-semibold">{profile.streaks.best} days</div>
+              </div>
+              <div className="p-2 rounded-lg bg-muted">
+                <div className="text-muted-foreground text-xs">Perfect Days</div>
+                <div className="font-semibold">{profile.streaks.perfectDays}</div>
+              </div>
+              <div className="p-2 rounded-lg bg-muted">
+                <div className="text-muted-foreground text-xs">Total Activities</div>
+                <div className="font-semibold">{Object.keys(profile.activities).length}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button onClick={handleSave}>
+            Save Changes
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 // --- Share Achievement Component ---
 const ShareAchievement = ({ profile, onClose }: { profile: any; onClose: () => void }) => {
   const today = getTodayDate();
@@ -548,6 +674,7 @@ export default function FocusFlow() {
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [showShare, setShowShare] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   // Debounce save
   const saveTimeout = useRef<any>(null);
@@ -648,6 +775,31 @@ export default function FocusFlow() {
       ...prev,
       settings: { ...prev.settings, currentProfile: id },
     }));
+  }
+
+  function handleUpdateProfile(updates: Partial<Profile>) {
+    setAppData((prev: AppData) => {
+      const profileId = prev?.settings?.currentProfile;
+      if (!profileId) return prev;
+
+      const currentProfile = prev.profiles[profileId];
+      const updatedProfile = {
+        ...currentProfile,
+        ...updates,
+        preferences: {
+          ...currentProfile.preferences,
+          ...(updates.preferences || {}),
+        },
+      };
+
+      return {
+        ...prev,
+        profiles: {
+          ...prev.profiles,
+          [profileId]: updatedProfile,
+        },
+      };
+    });
   }
 
   // --- Activity Completion (for demo, toggles completed state in dailyRecords) ---
@@ -1279,44 +1431,29 @@ export default function FocusFlow() {
             </div>
             {/* Bottom Navigation */}
             <nav className="fixed bottom-0 left-0 w-full bg-white border-t border-slate-100 flex flex-row items-center justify-around py-2 z-10">
-              <Button 
-                variant="ghost" 
-                className="flex flex-col items-center px-2 py-1 text-primary" 
-                aria-label="Dashboard"
-                onClick={() => toast({ 
-                  title: "Coming Soon!", 
-                  description: "Advanced dashboard features are under development." 
-                })}
-              >
-                <span className="text-xl">🏠</span>
-                <span className="text-xs">Dashboard</span>
-              </Button>
-              <Button 
-                variant="ghost" 
-                className="flex flex-col items-center px-2 py-1 text-accent" 
+              <Button
+                variant="ghost"
+                className="flex flex-col items-center px-2 py-1 text-accent"
                 aria-label="Analytics"
                 onClick={() => setShowAnalytics(true)}
               >
                 <span className="text-xl">📊</span>
                 <span className="text-xs">Analytics</span>
               </Button>
-              <Button 
-                variant="ghost" 
-                className="flex flex-col items-center px-2 py-1 text-green-500" 
+              <Button
+                variant="ghost"
+                className="flex flex-col items-center px-2 py-1 text-green-500"
                 aria-label="Share"
                 onClick={() => setShowShare(true)}
               >
                 <span className="text-xl">📤</span>
                 <span className="text-xs">Share</span>
               </Button>
-              <Button 
-                variant="ghost" 
-                className="flex flex-col items-center px-2 py-1 text-slate-500" 
+              <Button
+                variant="ghost"
+                className="flex flex-col items-center px-2 py-1 text-slate-500"
                 aria-label="Settings"
-                onClick={() => toast({ 
-                  title: "Coming Soon!", 
-                  description: "Settings and customization options will be available soon." 
-                })}
+                onClick={() => setShowSettings(true)}
               >
                 <span className="text-xl">⚙️</span>
                 <span className="text-xs">Settings</span>
@@ -1326,7 +1463,15 @@ export default function FocusFlow() {
             
             {/* Analytics Modal */}
             <AnalyticsModal isOpen={showAnalytics} onClose={() => setShowAnalytics(false)} profile={currentProfile} />
-            
+
+            {/* Settings Modal */}
+            <SettingsModal
+              isOpen={showSettings}
+              onClose={() => setShowSettings(false)}
+              profile={currentProfile}
+              onUpdateProfile={handleUpdateProfile}
+            />
+
             {/* Share Achievement Modal */}
             {showShare && (
               <ShareAchievement profile={currentProfile} onClose={() => setShowShare(false)} />
