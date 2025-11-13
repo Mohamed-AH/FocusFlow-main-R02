@@ -69,6 +69,7 @@ import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
+import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 
 // --- Constants & Templates ---
 
@@ -464,19 +465,13 @@ const ActivityCard = ({
 };
 
 // --- Analytics Modal Component ---
-const AnalyticsModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
+const AnalyticsModal = ({ isOpen, onClose, profile }: { isOpen: boolean; onClose: () => void; profile: Profile | null }) => {
+  if (!profile) return null;
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Analytics</DialogTitle>
-          <DialogDescription>
-            Coming Soon! We're working on bringing you detailed insights about your productivity journey.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="flex justify-center items-center p-6">
-          <span className="text-6xl">📊</span>
-        </div>
+      <DialogContent className="max-w-[95vw] w-full h-[90vh] p-0 overflow-hidden">
+        <DashboardLayout profile={profile} onClose={onClose} />
       </DialogContent>
     </Dialog>
   );
@@ -1330,7 +1325,7 @@ export default function FocusFlow() {
 
             
             {/* Analytics Modal */}
-            <AnalyticsModal isOpen={showAnalytics} onClose={() => setShowAnalytics(false)} />
+            <AnalyticsModal isOpen={showAnalytics} onClose={() => setShowAnalytics(false)} profile={currentProfile} />
             
             {/* Share Achievement Modal */}
             {showShare && (
