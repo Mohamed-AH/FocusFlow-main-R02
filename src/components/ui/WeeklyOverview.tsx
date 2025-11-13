@@ -96,7 +96,7 @@ export const WeeklyOverview: React.FC<WeeklyOverviewProps> = ({
       <AnimatePresence>
         {detailDay && (
           <Dialog open={!!detailDay} onOpenChange={() => setDetailDay(null)}>
-            <DialogContent className="max-w-xs w-full rounded-2xl p-0 overflow-hidden">
+            <DialogContent className="max-w-xs w-full rounded-2xl p-0 overflow-y-auto">
               <DialogHeader className="bg-primary/10 px-4 py-3">
                 <DialogTitle className="text-lg font-bold text-primary">
                   Day Details
